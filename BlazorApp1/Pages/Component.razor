@@ -1,0 +1,65 @@
+﻿@page "/Component"
+@using BlazorApp1.Data
+@using Newtonsoft.Json
+<h3> Blazor server app getting data from https://jsonplaceholder.typicode.com/todos</h3>
+ 
+ 
+@if (lst == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>userId</th>
+                <th>id</th>
+                <th>title</th>
+                <th>completed</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in lst)
+            {
+                <tr>
+                    <td>@forecast.userId</td>
+                    <td>@forecast.id</td>
+                    <td>@forecast.title</td>
+                    <td>@forecast.completed</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<button class="btn-primary" @onclick="clickincrease">see todos</button>
+ 
+ 
+@code {
+    private List<Customerdata> lst;
+    dynamic ResultStr;
+ 
+    string reqUrl => $"https://jsonplaceholder.typicode.com/todos/";
+ 
+    async Task clickincrease()
+    {
+        try
+        {
+            HttpClient client = new HttpClient();
+            var response = await client.GetAsync(reqUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                ResultStr = response.Content.ReadAsStringAsync().Result;
+                lst = JsonConvert.DeserializeObject<List<Customerdata>>(ResultStr);
+                Console.WriteLine(lst);
+ 
+            }
+            else
+                ResultStr = response.ReasonPhrase;
+        }
+        catch (Exception ex)
+        {
+            ResultStr = ex.ToString();
+        }
+    }
+}
